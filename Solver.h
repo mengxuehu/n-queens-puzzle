@@ -2,9 +2,7 @@
 #ifndef N_QUEENS_PUZZLE_SOLVER_H
 #define N_QUEENS_PUZZLE_SOLVER_H
 
-#define N 100000000
-
-#include <list>
+#define N 10000
 
 class Solver {
 public:

@@ -2,7 +2,6 @@
 #include <iostream>
 #include <chrono>
 #include <algorithm>
-#include <list>
 
 using std::cout;
 using std::endl;
@@ -54,7 +53,7 @@ void Solver::solve() {
                         positions[x1] = tmp;
 
 
-                        if((total_conflict += dist) == 0) {
+                        if ((total_conflict += dist) == 0) {
                             goto done;
                         }
 
@@ -80,38 +79,52 @@ void Solver::solve() {
         diag_negative[positions[i] + i] += 1;
     }
 
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            if (i - j == positions[i] - positions[j] || i - j == positions[j] - positions[i]) {
+                cout << "haha" << endl;
+                return;
+            }
+        }
+    }
+
 }
 
 void Solver::init() {
-    std::iota(positions, positions + N, 0);
-    std::shuffle(positions, positions + N, std::default_random_engine(
+    int *rest = new int[N + 1];
+    int *end = rest + N;
+    std::iota(rest, rest + N, 0);
+    std::shuffle(rest, rest + N, std::default_random_engine(
             (unsigned long) std::chrono::system_clock::now().time_since_epoch().count()));
 
-    std::list<int> rest(positions, positions + N);
 
     int remaining = N / 10000;
 
+    int *begin = rest;
+
     for (int i = N - 1; i >= remaining; --i) {
-        std::list<int>::iterator item = rest.begin();
+        int *item = begin;
 
-        for (; item != rest.end() && (diag_positive[*item - i + N] > 0 || diag_negative[*item + i] > 0); ++item);
+        for (; item != end && (diag_positive[*item - i + N] > 0 || diag_negative[*item + i] > 0); ++item);
 
-        if (item != rest.end()) {
+        if (item != end) {
             positions[i] = *item;
             diag_positive[*item - i + N] = 1;
             diag_negative[*item + i] = 1;
-            rest.erase(item);
+            ++begin;
         } else {
             break;
         }
     }
 
     int idx = 0;
-    for (int it : rest) {
-        diag_positive[it - idx + N] += 1;
-        diag_negative[it + idx] += 1;
-        positions[idx++] = it;
+    for (int *i = begin; i != end; ++i) {
+        diag_positive[*i - idx + N] += 1;
+        diag_negative[*i + idx] += 1;
+        positions[idx++] = *i;
     }
+
+    delete[](rest);
 
     for (int i = 0; i < N; ++i) {
         total_conflict += diag_positive[positions[i] - i + N] + diag_negative[positions[i] + i] - 2;//num_conflict[i];
