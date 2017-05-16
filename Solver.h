@@ -2,7 +2,7 @@
 #ifndef N_QUEENS_PUZZLE_SOLVER_H
 #define N_QUEENS_PUZZLE_SOLVER_H
 
-#define N 100000000
+#define N 1000000
 
 class Solver {
 public:
@@ -10,7 +10,7 @@ public:
 
     ~Solver();
 
-    long solve();
+    void solve();
 
 private:
     void init();

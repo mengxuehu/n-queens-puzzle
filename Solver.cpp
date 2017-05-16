@@ -20,7 +20,7 @@ Solver::~Solver() {
     delete[](diag_negative);
 }
 
-long Solver::solve() {
+void Solver::solve() {
     auto start = std::chrono::system_clock::now();
     std::fill(diag_positive, diag_positive + (N << 1), 0);
     std::fill(diag_negative, diag_negative + (N << 1), 0);
@@ -68,11 +68,12 @@ long Solver::solve() {
     }
 
     done:
+
+    cout << "run time: " << (std::chrono::system_clock::now() - start).count() / 1e9 << endl;
+
     if (total_conflict != 0) {
         cout << "restart is required" << endl;
     }
-    return (std::chrono::system_clock::now() - start).count();
-//    cout << "run time: " << (std::chrono::system_clock::now() - start).count() / 1e9 << endl;
 
 //    std::fill(diag_positive, diag_positive + (N << 1), 0);
 //    std::fill(diag_negative, diag_negative + (N << 1), 0);
