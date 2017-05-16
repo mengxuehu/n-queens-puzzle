@@ -10,8 +10,8 @@ using std::endl;
 
 Solver::Solver() {
     positions = new int[N];
-    diag_positive = new int[N << 1]{};  // 1 to 2N-1
-    diag_negative = new int[(N << 1)]{};  // 0 to 2N-2
+    diag_positive = new int[N << 1];  // 1 to 2N-1
+    diag_negative = new int[(N << 1)];  // 0 to 2N-2
 }
 
 Solver::~Solver() {
@@ -20,8 +20,10 @@ Solver::~Solver() {
     delete[](diag_negative);
 }
 
-void Solver::solve() {
+long Solver::solve() {
     auto start = std::chrono::system_clock::now();
+    std::fill(diag_positive, diag_positive + (N << 1), 0);
+    std::fill(diag_negative, diag_negative + (N << 1), 0);
     init();
 
     bool flag = true;
@@ -66,28 +68,22 @@ void Solver::solve() {
     }
 
     done:
-    cout << "run time: " << (std::chrono::system_clock::now() - start).count() / 1e9 << endl;
-
-    std::fill(diag_positive, diag_positive + (N << 1), 0);
-    std::fill(diag_negative, diag_negative + (N << 1), 0);
-    for (int i = 0; i < N; ++i) {
-        if (diag_positive[positions[i] - i + N] != 0 || diag_negative[positions[i] + i] != 0) {
-            cout << "error" << endl;
-            break;
-        }
-        diag_positive[positions[i] - i + N] += 1;
-        diag_negative[positions[i] + i] += 1;
+    if (total_conflict != 0) {
+        cout << "restart is required" << endl;
     }
+    return (std::chrono::system_clock::now() - start).count();
+//    cout << "run time: " << (std::chrono::system_clock::now() - start).count() / 1e9 << endl;
 
-    for (int i = 0; i < N; ++i) {
-        for (int j = 0; j < N; ++j) {
-            if (i - j == positions[i] - positions[j] || i - j == positions[j] - positions[i]) {
-                cout << "haha" << endl;
-                return;
-            }
-        }
-    }
-
+//    std::fill(diag_positive, diag_positive + (N << 1), 0);
+//    std::fill(diag_negative, diag_negative + (N << 1), 0);
+//    for (int i = 0; i < N; ++i) {
+//        if (diag_positive[positions[i] - i + N] != 0 || diag_negative[positions[i] + i] != 0) {
+//            cout << "error" << endl;
+//            break;
+//        }
+//        diag_positive[positions[i] - i + N] += 1;
+//        diag_negative[positions[i] + i] += 1;
+//    }
 }
 
 void Solver::init() {
@@ -96,7 +92,6 @@ void Solver::init() {
     std::iota(rest, rest + N, 0);
     std::shuffle(rest, rest + N, std::default_random_engine(
             (unsigned long) std::chrono::system_clock::now().time_since_epoch().count()));
-
 
     int remaining = N / 10000;
 
@@ -111,7 +106,7 @@ void Solver::init() {
             positions[i] = *item;
             diag_positive[*item - i + N] = 1;
             diag_negative[*item + i] = 1;
-            ++begin;
+            *item = *(begin++);
         } else {
             break;
         }
