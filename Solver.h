@@ -2,7 +2,8 @@
 #ifndef N_QUEENS_PUZZLE_SOLVER_H
 #define N_QUEENS_PUZZLE_SOLVER_H
 
-#define N 1000000
+// N should not be 2, 3
+#define N 100000000
 
 class Solver {
 public:
@@ -10,10 +11,12 @@ public:
 
     ~Solver();
 
-    void solve();
+    long solve();
 
 private:
     void init();
+
+    void check();
 
 private:
     int *positions;
