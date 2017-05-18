@@ -1,5 +1,5 @@
 
-#include "Solver.h"
+#include "solver.h"
 
 int main() {
     Solver solver;

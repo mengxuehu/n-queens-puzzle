@@ -6,7 +6,7 @@
 using std::cout;
 using std::endl;
 
-#include "Solver.h"
+#include "solver.h"
 
 Solver::Solver() {
     positions = new int[N];
@@ -20,10 +20,9 @@ Solver::~Solver() {
     delete[](diag_negative);
 }
 
-long Solver::solve() {
+void Solver::solve() {
     auto start = std::chrono::system_clock::now();
     do {
-//        cout << "haha" << endl;
         std::fill(diag_positive, diag_positive + (N << 1), 0);
         std::fill(diag_negative, diag_negative + (N << 1), 0);
         init();
@@ -74,59 +73,44 @@ long Solver::solve() {
 
     done:
 
-    long tmp = (std::chrono::system_clock::now() - start).count();
-
-//    cout << "run time: " << (std::chrono::system_clock::now() - start).count() / 1e9 << endl;
-
-    check();
-    return tmp;
-
+    // result is in positions
+    cout << "run time: " << (std::chrono::system_clock::now() - start).count() / 1e9 << endl;
 }
 
 void Solver::init() {
-
-    std::iota(positions, positions + N, 0);
-    std::shuffle(positions, positions + N, std::default_random_engine(
+    int *rest = new int[N + 1];
+    int *end = rest + N;
+    std::iota(rest, rest + N, 0);
+    std::shuffle(rest, rest + N, std::default_random_engine(
             (unsigned long) std::chrono::system_clock::now().time_since_epoch().count()));
 
-//    int *rest = new int[N + 1];
-//    int *end = rest + N;
-//    std::iota(rest, rest + N, 0);
-//    std::shuffle(rest, rest + N, std::default_random_engine(
-//            (unsigned long) std::chrono::system_clock::now().time_since_epoch().count()));
-//
-//    int remaining = N / 10000;
-//
-//    int *begin = rest;
-//
-//    for (int i = N - 1; i >= remaining; --i) {
-//        int *item = begin;
-//
-//        for (; item != end && (diag_positive[*item - i + N] > 0 || diag_negative[*item + i] > 0); ++item);
-//
-//        if (item != end) {
-//            positions[i] = *item;
-//            diag_positive[*item - i + N] = 1;
-//            diag_negative[*item + i] = 1;
-//            *item = *(begin++);
-//        } else {
-//            break;
-//        }
-//    }
-//
-//    int idx = 0;
-//    for (int *i = begin; i != end; ++i) {
-//        diag_positive[*i - idx + N] += 1;
-//        diag_negative[*i + idx] += 1;
-//        positions[idx++] = *i;
-//    }
-//
-//    delete[](rest);
+    int remaining = N / 10000;
 
-    for (int i = 0; i < N; ++i) {
-        diag_positive[positions[i] - i + N] += 1;
-        diag_negative[positions[i] + i] += 1;
+    int *begin = rest;
+
+    for (int i = N - 1; i >= remaining; --i) {
+        int *item = begin;
+
+        for (; item != end && (diag_positive[*item - i + N] > 0 || diag_negative[*item + i] > 0); ++item);
+
+        if (item != end) {
+            positions[i] = *item;
+            diag_positive[*item - i + N] = 1;
+            diag_negative[*item + i] = 1;
+            *item = *(begin++);
+        } else {
+            break;
+        }
     }
+
+    int idx = 0;
+    for (int *i = begin; i != end; ++i) {
+        diag_positive[*i - idx + N] += 1;
+        diag_negative[*i + idx] += 1;
+        positions[idx++] = *i;
+    }
+
+    delete[](rest);
 
     for (int i = 0; i < N; ++i) {
         total_conflict += diag_positive[positions[i] - i + N] + diag_negative[positions[i] + i] - 2;//num_conflict[i];
